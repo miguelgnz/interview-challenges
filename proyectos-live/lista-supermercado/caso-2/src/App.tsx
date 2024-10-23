@@ -1,6 +1,6 @@
-import type {Item} from "./types";
+import type { Item } from "./types";
 
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 import styles from "./App.module.scss";
 import api from "./api";
@@ -15,20 +15,42 @@ function App() {
 
   function handleToggle(id: Item["id"]) {
     // Should implement
+    setItems((prevState) => {
+      const updatedArray = prevState.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            completed: !item.completed,
+          };
+        }
+
+        return item;
+      });
+
+      console.log("updatedArray", updatedArray);
+
+      return updatedArray;
+    });
   }
 
   function handleAdd(event: React.ChangeEvent<Form>) {
     event.preventDefault();
 
-    setItems((items) =>
-      items.concat({
-        id: +new Date(),
-        completed: false,
-        text: event.target.text.value,
-      }),
-    );
+    const userInput = event.target.text.value;
 
-    event.target.text.value = "";
+    if (event.target.text.value !== "") {
+      setItems((items) =>
+        items.concat({
+          id: +new Date(),
+          text: userInput,
+          completed: false,
+        })
+      );
+
+      event.target.text.value = "";
+    } else {
+      alert("Input cannot be empty");
+    }
   }
 
   function handleRemove(id: Item["id"]) {
@@ -38,7 +60,9 @@ function App() {
   useEffect(() => {
     api
       .list()
-      .then(setItems)
+      .then((data) => {
+        setItems(data);
+      })
       .finally(() => toggleLoading(false));
   }, []);
 
@@ -49,7 +73,7 @@ function App() {
       <h1>Supermarket list</h1>
       <form onSubmit={handleAdd}>
         <input name="text" type="text" />
-        <button>Add</button>
+        <button type="submit">Add</button>
       </form>
       <ul>
         {items?.map((item) => (
@@ -58,7 +82,8 @@ function App() {
             className={item.completed ? styles.completed : ""}
             onClick={() => handleToggle(item.id)}
           >
-            {item.text} <button onClick={() => handleRemove(item.id)}>[X]</button>
+            {item.text}{" "}
+            <button onClick={() => handleRemove(item.id)}>[X]</button>
           </li>
         ))}
       </ul>
