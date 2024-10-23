@@ -1,6 +1,6 @@
-import type {Item} from "./types";
+import type { Item } from "./types";
 
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 import styles from "./App.module.scss";
 import api from "./api";
@@ -12,20 +12,44 @@ function App() {
     api.list().then(setItems);
   }, []);
 
+  const handleDeleteItem = (id: number) => {
+    if (items) {
+      const newArray = items.filter((i) => {
+        return i.id !== id;
+      });
+
+      setItems(newArray);
+    }
+  };
+
   return (
     <main className={styles.main}>
       <h1>Supermarket list</h1>
       <form>
-        <input name="text" type="text" />
+        <input autoFocus name="text" type="text" />
         <button>Add</button>
       </form>
-      <ul>
-        {items.map((item) => (
-          <li className={item.completed ? styles.completed : ""}>
-            {item.text} <button>[X]</button>
-          </li>
-        ))}
-      </ul>
+      {items ? (
+        <ul>
+          {items.map((item) => (
+            <li
+              key={item.id}
+              className={item.completed ? styles.completed : ""}
+            >
+              {item.text}{" "}
+              <button
+                onClick={() => {
+                  handleDeleteItem(item.id);
+                }}
+              >
+                [X]
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No items to show</p>
+      )}
     </main>
   );
 }
