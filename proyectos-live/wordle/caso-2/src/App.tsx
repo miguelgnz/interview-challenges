@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import api from "./api";
 
@@ -7,8 +7,8 @@ function App() {
   const [isLoading, toggleLoading] = useState<boolean>(true);
   const [turn, setTurn] = useState<number>(0);
   const [status, setStatus] = useState<"playing" | "finished">("playing");
-  const [words, setWords] = useState<string[][]>(
-    Array.from({length: 6}, () => new Array(5).fill("")),
+  const [words, setWords] = useState<string[][]>(() =>
+    Array.from({ length: 6 }, () => new Array(5).fill(""))
   );
 
   useEffect(() => {
@@ -36,7 +36,9 @@ function App() {
             return;
           }
           case "Backspace": {
-            let firstEmptyIndex = words[turn].findIndex((letter) => letter === "");
+            let firstEmptyIndex = words[turn].findIndex(
+              (letter) => letter === ""
+            );
 
             if (firstEmptyIndex === -1) {
               firstEmptyIndex = words[turn].length;
@@ -50,7 +52,9 @@ function App() {
           }
           default: {
             if (event.key.length === 1 && event.key.match(/[a-z]/i)) {
-              const firstEmptyIndex = words[turn].findIndex((letter) => letter === "");
+              const firstEmptyIndex = words[turn].findIndex(
+                (letter) => letter === ""
+              );
 
               if (firstEmptyIndex === -1) return;
 
@@ -64,15 +68,19 @@ function App() {
         }
       } else if (status === "finished" && event.key === "Enter") {
         setStatus("playing");
-        setWords(Array.from({length: 6}, () => new Array(5).fill("")));
+        setWords(Array.from({ length: 6 }, () => new Array(5).fill("")));
         setTurn(0);
       }
     },
-    [status, turn, words, answer],
+    [status, turn, words, answer]
   );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [handleKeyDown]);
 
   if (isLoading) return "Cargando...";
@@ -82,7 +90,8 @@ function App() {
       {words.map((word, wordIndex) => (
         <section className="word">
           {word.map((letter, letterIndex) => {
-            const isCorrect = letter && wordIndex < turn && letter === answer[letterIndex];
+            const isCorrect =
+              letter && wordIndex < turn && letter === answer[letterIndex];
             const isPresent =
               letter &&
               wordIndex < turn &&
@@ -90,7 +99,11 @@ function App() {
               answer.includes(letter);
 
             return (
-              <article className={`letter ${isPresent && "present"} ${isCorrect && "correct"}`}>
+              <article
+                className={`letter ${isPresent && "present"} ${
+                  isCorrect && "correct"
+                }`}
+              >
                 {letter}
               </article>
             );
