@@ -1,15 +1,23 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 import api from "./api";
-import {Pokemon} from "./types";
+import { Pokemon } from "./types";
 
 function App() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+  const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Pokemon[]>([]);
 
   useEffect(() => {
-    api.list().then(setPokemons);
+    api.list().then((pokemons) => {
+      setPokemons(pokemons);
+      setLoading(false);
+    });
   }, []);
+
+  if (loading) {
+    return "Cargando...";
+  }
 
   return (
     <>
@@ -18,17 +26,26 @@ function App() {
           <article key={pokemon.id}>
             <img className="nes-container" src={pokemon.image} />
             <div>
-              <p>{pokemon.name}</p>
+              <p>{`${pokemon.name} $${pokemon.price}`}</p>
               <p>{pokemon.description}</p>
             </div>
-            <button className="nes-btn" onClick={() => setCart(cart.concat(pokemon))}>
+            <button
+              className="nes-btn"
+              onClick={() => {
+                if (cart.length < 3) {
+                  setCart(cart.concat(pokemon));
+                } else {
+                  return;
+                }
+              }}
+            >
               Agregar
             </button>
           </article>
         ))}
       </section>
       <aside>
-        <button className="nes-btn is-primary">0 items</button>
+        <button className="nes-btn is-primary">{`${cart.length} items`}</button>
       </aside>
     </>
   );
